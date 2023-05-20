@@ -76,27 +76,28 @@ const renderMovie = (movie) => {
     </div>`;
 };
 
-// Fetch movies and genres
+let movies, genres;
+
+// Fetch movies
 const fetchMovies = async () => {
   const response = await fetch('https://api.themoviedb.org/3/movie/popular?api_key=9c7643a821f2dd01a5781799a3e78f7c');
   const data = await response.json();
-  const movies = data.results;
-  return movies;
+  movies = data.results;
 };
 
+// Fetch genres
 const fetchGenres = async () => {
   const response = await fetch('https://api.themoviedb.org/3/genre/movie/list?api_key=9c7643a821f2dd01a5781799a3e78f7c');
   const data = await response.json();
-  const genres = data.genres;
-  return genres;
+  genres = data.genres;
 };
 
 // Render movies
-const renderMovies = (movies) => {
+const renderMovies = (moviesToRender) => {
   const movieContainer = document.querySelector('.movie-container');
   movieContainer.innerHTML = '';
 
-  movies.forEach((movie) => {
+  moviesToRender.forEach((movie) => {
     const movieDiv = document.createElement('div');
     movieDiv.innerHTML = `
       <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title} poster">
@@ -106,8 +107,8 @@ const renderMovies = (movies) => {
   });
 };
 
-// Render genre dropdown
-const renderGenreDropdown = (genres) => {
+// Render genres
+const renderGenres = () => {
   const genreDropdown = document.querySelector('#genre-dropdown');
   genreDropdown.innerHTML = '';
 
@@ -120,14 +121,14 @@ const renderGenreDropdown = (genres) => {
     genreLink.classList.add('rounded-md');
     genreLink.classList.add('p-1.5');
     genreLink.addEventListener('click', () => {
-      filterMovies(genre.id);
+      filterMoviesByGenre(genre.id);
     });
     genreDropdown.appendChild(genreLink);
   });
 };
 
 // Filter movies by genre
-const filterMovies = (genreId) => {
+const filterMoviesByGenre = (genreId) => {
   const selectedGenre = genreId !== 0 ? genreId : null;
   const moviesToShow = movies.filter((movie) => {
     return selectedGenre ? movie.genre_ids.includes(selectedGenre) : true;
@@ -136,16 +137,11 @@ const filterMovies = (genreId) => {
 };
 
 // Fetch and render movies and genres
-let movies, genres;
 fetchMovies()
-  .then((data) => {
-    movies = data;
+  .then(() => fetchGenres())
+  .then(() => {
     renderMovies(movies);
-    return fetchGenres();
-  })
-  .then((data) => {
-    genres = data;
-    renderGenreDropdown(genres);
+    renderGenres();
   })
   .catch((error) => console.log(error));
 
