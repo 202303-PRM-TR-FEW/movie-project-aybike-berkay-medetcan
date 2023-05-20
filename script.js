@@ -55,11 +55,11 @@ const renderMovies = (movies) => {
 // You'll need to play with this function in order to add features and enhance the style.
 const renderMovie = async (movie) => {
   let similar = await similarDetails(movie);
-  let slicedSimilar = similar.results.splice(0,10);
-
+  let slicedSimilar = similar.results.splice(0, 5);
+  console.log(movie, ' ----')
   let acts = await actorsDetails(movie);
   let slicedActs = acts.cast.splice(0, 10)
-  const director = acts.crew.find( item => item.name)
+  const director = acts.crew.find(item => item.name)
   console.log(director)
   CONTAINER.innerHTML = `
     <div class="container mx-auto ">
@@ -98,12 +98,11 @@ const renderMovie = async (movie) => {
             </ul>
             <h3 class='text-3xl font-bold'>Production Companies</h3>
             <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
-                ${movie.production_companies
-                  .map(comp => `
+                ${`
                 <li>
-                <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + comp.logo_path} alt='${movie.name}'>
+                <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
               </li>
-                `).join('')}
+                `}
             </ul>
     </div>`;
 };
