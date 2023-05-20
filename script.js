@@ -22,6 +22,7 @@ const movieDetails = async (movie) => {
   renderMovie(movieRes);
 };
 
+
 // This function is to fetch movies. You may need to add it or change some part in it in order to apply some of the features.
 const fetchMovies = async () => {
   const url = constructUrl(`movie/now_playing`);
@@ -54,6 +55,7 @@ const renderMovies = (movies) => {
 
 // You'll need to play with this function in order to add features and enhance the style.
 const renderMovie = (movie) => {
+  console.log(movie)
   CONTAINER.innerHTML = `
     <div class="row">
         <div class="col-md-4">
@@ -72,8 +74,34 @@ const renderMovie = (movie) => {
         </div>
         </div>
             <h3>Actors:</h3>
-            <ul id="actors" class="list-unstyled"></ul>
+            <ul id="actors" class="list-unstyled">
+             ${renderActors(movie)}
+            </ul>
     </div>`;
+    fetchActors(movie)
 };
 
+
 document.addEventListener("DOMContentLoaded", autorun);
+
+
+
+
+// fetching actors 
+
+const fetchActors = async (movie) => {
+  const url = constructUrl(`movie/${movie.id}/credits`);
+  const res = await fetch(url);
+  const data = await res.json();
+  return data;
+}
+
+const renderActors = (actors) => {
+  
+  return `
+  <li> asdfadsfasdf </li>
+  `
+}
+
+
+
