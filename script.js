@@ -53,33 +53,63 @@ const renderMovies = (movies) => {
 };
 
 // You'll need to play with this function in order to add features and enhance the style.
-const renderMovie = (movie) => {
+const renderMovie = async (movie) => {
+  let similar = await similarDetails(movie);
+  let slicedSimilar = similar.results.splice(0,10);
+
+  let acts = await actorsDetails(movie);
+  let slicedActs = acts.cast.splice(0, 10)
+  const director = acts.crew.find( item => item.name)
+  console.log(director)
   CONTAINER.innerHTML = `
-    <div class="row">
-        <div class="col-md-4">
-             <img id="movie-backdrop" src=${BACKDROP_BASE_URL + movie.backdrop_path
-    }>
+    <div class="container mx-auto ">
+        <div class="text-center">
+             <img id="movie-backdrop" src=${BACKDROP_BASE_URL + movie.backdrop_path}>
         </div>
-        <div class="col-md-8">
-            <h2 id="movie-title">${movie.title}</h2>
-            <p id="movie-release-date"><b>Release Date:</b> ${movie.release_date
-    }</p>
+        <div class="">
+            <h1 id="movie-title" class='text-4xl font-bold'>${movie.title}</h1>
+            <p id="movie-release-date"><b>Release Date:</b> ${movie.release_date}</p>
             <p id="movie-runtime"><b>Runtime:</b> ${movie.runtime} Minutes</p>
-            <h3>Overview:</h3>
+            <h3 class='font-bold'>Overview:</h3>
             <p id="movie-overview">${movie.overview}</p>
+            <h3 class='font-bold'>Language:</h3>
+            <p> ${movie.original_language}  </p>
+            <h3 class='font-bold'>Director:</h3>
+            <p> ${director.name} </p>
         </div>
         </div>
-            <h3>Actors:</h3>
-            <ul id="actors" class="list-unstyled">
-             ${actorsDetails(movie)}
+            <h3 class='text-3xl font-bold'>Actors:</h3>
+            <ul id="actors" class="container flex flex-wrap space-x-12   gap-y-6 py-6">
+            ${slicedActs.map(actor => `
+              <li>
+                <img width='100' height='100' class='rounded-full' src=${BACKDROP_BASE_URL + actor.profile_path} alt='${actor.name}'>
+                <p class=''> ${actor.name} </p>
+              </li>
+            `).join('')}
+            </ul>
+            <h3 class='text-3xl font-bold'>Related movies</h3>
+            <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
+                ${slicedSimilar.map(similar => `
+                <li>
+                <img onclick="similarClick()" width='150' height='150' class='rounded-full' src=${BACKDROP_BASE_URL + similar.backdrop_path} alt='${similar.title}'>
+                <p class=''> ${similar.title} </p>
+              </li>
+                `).join('')}
+            </ul>
+            <h3 class='text-3xl font-bold'>Production Companies</h3>
+            <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
+                ${movie.production_companies
+                  .map(comp => `
+                <li>
+                <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + comp.logo_path} alt='${movie.name}'>
+              </li>
+                `).join('')}
             </ul>
     </div>`;
-  // fetchActors(movie)
 };
 
 
 document.addEventListener("DOMContentLoaded", autorun);
-
 
 
 
@@ -93,19 +123,23 @@ const fetchActors = async (actor) => {
 
 const actorsDetails = async (movie) => {
   const actorRes = await fetchActors(movie.id);
-  console.log(actorRes)
-  renderActors(actorRes);
+  return actorRes;
 };
 
-const renderActors = (actors) => {
-  `
-  ${actors.cast.forEach(actor => {
-    return `
-    <li> ${actor.name} </li>
-    `
-  })}
-  `
+const fetchSimilar = async (similar) => {
+  const url = constructUrl(`/movie/${similar}/similar`);
+  const res = await fetch(url);
+  return res.json();
+};
+
+const similarDetails = async (movie) => {
+  const similarRes = await fetchSimilar(movie.id);
+  return similarRes
 }
+
+
+
+
 
 
 
