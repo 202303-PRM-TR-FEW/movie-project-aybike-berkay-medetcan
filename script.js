@@ -55,12 +55,10 @@ const renderMovies = (movies) => {
 // You'll need to play with this function in order to add features and enhance the style.
 const renderMovie = async (movie) => {
   let similar = await similarDetails(movie);
-  let slicedSimilar = similar.results.splice(0, 5);
-  console.log(movie, ' ----')
+  let slicedSimilar = similar.results.splice(0, 10);
   let acts = await actorsDetails(movie);
   let slicedActs = acts.cast.splice(0, 10)
   const director = acts.crew.find(item => item.name)
-  console.log(director)
   CONTAINER.innerHTML = `
     <div class="container mx-auto ">
         <div class="text-center">
@@ -82,16 +80,16 @@ const renderMovie = async (movie) => {
             <ul id="actors" class="container flex flex-wrap space-x-12   gap-y-6 py-6">
             ${slicedActs.map(actor => `
               <li>
-                <img width='100' height='100' class='rounded-full' src=${BACKDROP_BASE_URL + actor.profile_path} alt='${actor.name}'>
+                <img width='100' height='100' class='rounded-full actor' src=${BACKDROP_BASE_URL + actor.profile_path} alt='${actor.name}'>
                 <p class=''> ${actor.name} </p>
               </li>
             `).join('')}
             </ul>
-            <h3 class='text-3xl font-bold'>Related movies</h3>
+            <h3 class='text-3xl font-bold'>Similar Movies</h3>
             <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
                 ${slicedSimilar.map(similar => `
                 <li>
-                <img onclick="similarClick()" width='150' height='150' class='rounded-full' src=${BACKDROP_BASE_URL + similar.backdrop_path} alt='${similar.title}'>
+                <img width='150' height='150' class='rounded-full similar-movie' src=${BACKDROP_BASE_URL + similar.backdrop_path} alt='${similar.title}'>
                 <p class=''> ${similar.title} </p>
               </li>
                 `).join('')}
@@ -100,11 +98,54 @@ const renderMovie = async (movie) => {
             <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
                 ${`
                 <li>
-                <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
+                <img width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
               </li>
                 `}
             </ul>
     </div>`;
+  const similarMovieImages = document.querySelectorAll('.similar-movie');
+  similarMovieImages.forEach((image, index) => {
+    image.addEventListener('click', () => {
+      movieDetails(slicedSimilar[index]);
+    });
+  })
+  const actorImages = document.querySelectorAll('.actor');
+  actorImages.forEach((image, index) => {
+    image.addEventListener('click', () => {
+      renderActor(slicedActs[index]);
+    });
+  })
+};
+
+const renderActor = async (actor) => {
+  actor = await actorDetails(actor)
+  let movies = await fetchActorRelatedMovies(actor.id)
+  let slicedMovies = movies.cast.splice(0, 10)
+  CONTAINER.innerHTML = `
+    <div class="container mx-auto ">
+        <div class="text-center">
+             <img width='200' height='200' class="rounded-full mx-auto" src=${BACKDROP_BASE_URL + actor.profile_path} alt='${actor.name}'>
+             <p id="movie-release-date"><b>${actor.name}</b></p>
+             <ul id="movie-release-date"><b>Also Known As:</b> ${actor.also_known_as.map(aka => `<li>${aka}</li>`).join("")}</ul>
+             <p id="movie-release-date"><b>Birthday:</b> ${actor.birthday}</p>
+             <p id="movie-release-date"><b>Place of Birth:</b> ${actor.place_of_birth}</p>
+             <p id="movie-release-date"><b>Biography:</b> ${actor.biography}</p>
+             <h3 class='text-3xl font-bold'>Related Movies</h3>
+             <ul class="container flex flex-wrap space-x-12 gap-y-6 py-6">
+                ${slicedMovies.map(related => `
+                <li>
+                <img width='150' height='150' class='rounded-full related-movie' src=${BACKDROP_BASE_URL + related.backdrop_path} alt='${related.title}'>
+                <p class=''> ${related.title} </p>
+              </li>
+                `).join('')}
+            </ul>
+        </div>`
+  const relatedMovieImages = document.querySelectorAll('.related-movie');
+  relatedMovieImages.forEach((image, index) => {
+    image.addEventListener('click', () => {
+      movieDetails(slicedMovies[index]);
+    });
+  })
 };
 
 
@@ -112,8 +153,31 @@ document.addEventListener("DOMContentLoaded", autorun);
 
 
 
-// fetching actors 
+// fetching actors' details 
+const fetchActorDetails = async (actor) => {
+  const url = constructUrl(`person/${actor}`)
+  const res = await fetch(url)
+  return res.json()
+}
 
+const actorDetails = async (actor) => {
+  const actorRes = await fetchActorDetails(actor.id)
+  return actorRes
+}
+
+// fetching actor's related movies
+const fetchActorRelatedMovies = async (actor) => {
+  const url = constructUrl(`person/${actor}/combined_credits`)
+  const res = await fetch(url)
+  return res.json()
+}
+
+const actorRelatedMovieDetails = async (actor) => {
+  const actorRelatedMoviesRes = await fetchActorRelatedMovies(actor.id)
+  return actorRelatedMoviesRes
+}
+
+// fetching actors
 const fetchActors = async (actor) => {
   const url = constructUrl(`movie/${actor}/credits`);
   const res = await fetch(url);
@@ -125,6 +189,7 @@ const actorsDetails = async (movie) => {
   return actorRes;
 };
 
+// fetching similar movies
 const fetchSimilar = async (similar) => {
   const url = constructUrl(`/movie/${similar}/similar`);
   const res = await fetch(url);
@@ -135,8 +200,6 @@ const similarDetails = async (movie) => {
   const similarRes = await fetchSimilar(movie.id);
   return similarRes
 }
-
-
 
 
 
