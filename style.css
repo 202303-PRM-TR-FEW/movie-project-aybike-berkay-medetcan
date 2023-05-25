@@ -79,3 +79,22 @@ nav,
     filter: grayscale(100%);
     border-radius: 20px
 }
+
+.about-heading {
+  font-size: 40px;
+  color: #333;
+  padding: 10px;
+  text-align: center;
+}
+
+.about-subheading {
+  font-size: 25px;
+  color: #000000;
+  padding: 10px;
+  text-align: center;
+}
+
+.iframe-container {
+  display: flex;
+  justify-content: center;
+}
