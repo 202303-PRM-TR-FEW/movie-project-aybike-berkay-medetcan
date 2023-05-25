@@ -487,12 +487,30 @@ const fetchActorPage = async () => {
 
 // ABOUT PAGE
 // script.js
-document.getElementById("aboutButton").addEventListener("click", function(event) {
-  event.preventDefault(); // Prevent the default link behavior
+const aboutContent = `
+<h1 class="about-heading">nice to meet you!!</h1>
+<div class="iframe-container">
+  <iframe src="https://giphy.com/embed/1ZVBVvY5kS7qUHhqI2" width="480" height="480" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+</div>
+  <h2 class="about-subheading">and bye!</h2>
 
-  var aboutButton = document.getElementById("aboutButton");
-  aboutButton.innerHTML = "<h2>About Us!</h2>";
-});
+`;
+
+const showAboutPage = () => {
+  CONTAINER.innerHTML = aboutContent;
+};
+
+
+
+  document.getElementById("aboutButton").addEventListener("click", () => {
+    showAboutPage();
+  });
+
+  // ... Existing code ...
+
+
+autorun();
+
 
 
 
