@@ -54,57 +54,80 @@ const renderMovies = (movies) => {
 
 // You'll need to play with this function in order to add features and enhance the style.
 const renderMovie = async (movie) => {
+  // similar movies 
   let similar = await similarDetails(movie);
   let slicedSimilar = similar.results.splice(0, 5);
-  console.log(movie, ' ----')
+  // actors who play in related movie
   let acts = await actorsDetails(movie);
-  let slicedActs = acts.cast.splice(0, 10)
+  let slicedActs = acts.cast.splice(0, 5)
   const director = acts.crew.find(item => item.name)
-  console.log(director)
+  //trailer movie 
+  const trailer = await trailerDetails(movie);
+  console.log(movie)
+  
+  console.log(trailer.results[0].key)
+
   CONTAINER.innerHTML = `
-    <div class="container mx-auto ">
-        <div class="text-center">
-             <img id="movie-backdrop" src=${BACKDROP_BASE_URL + movie.backdrop_path}>
+  <div class="container mx-auto">
+    <div class="text-center">
+      <img id="movie-backdrop" src=${BACKDROP_BASE_URL + movie.backdrop_path}>
+    </div>
+    <div class="container flex flex-col space-y-12 md:flex-row md:space-x-12 md:space-y-0">
+      <div class="left w-1/2">  
+          <h1 id="movie-title" class='text-4xl font-bold'>${movie.title}</h1>
+          <p id="movie-release-date"><b>Release Date:</b> ${movie.release_date}</p>
+          <p id="movie-runtime"><b>Runtime:</b> ${movie.runtime} Minutes</p>
+          <h3 class='font-bold'>Overview:</h3>
+          <p id="movie-overview">${movie.overview}</p>
+          <h3 class='font-bold'>Language:</h3>
+          <p> ${movie.original_language}  </p>
+          <h3 class='font-bold'>Director:</h3>
+          <p> ${director.name} </p>
+      </div>
+      <div class="right w-1/2">
+        <h1 class='text-3xl font-bold'>Trailer</h1>
+        <div>
+          <iframe width="420" height="315"
+          src="https://www.youtube.com/embed/${trailer.results[0].key}">
+          </iframe>
         </div>
-        <div class="">
-            <h1 id="movie-title" class='text-4xl font-bold'>${movie.title}</h1>
-            <p id="movie-release-date"><b>Release Date:</b> ${movie.release_date}</p>
-            <p id="movie-runtime"><b>Runtime:</b> ${movie.runtime} Minutes</p>
-            <h3 class='font-bold'>Overview:</h3>
-            <p id="movie-overview">${movie.overview}</p>
-            <h3 class='font-bold'>Language:</h3>
-            <p> ${movie.original_language}  </p>
-            <h3 class='font-bold'>Director:</h3>
-            <p> ${director.name} </p>
-        </div>
-        </div>
-            <h3 class='text-3xl font-bold'>Actors:</h3>
-            <ul id="actors" class="container flex flex-wrap space-x-12   gap-y-6 py-6">
-            ${slicedActs.map(actor => `
-              <li>
-                <img width='100' height='100' class='rounded-full' src=${BACKDROP_BASE_URL + actor.profile_path} alt='${actor.name}'>
-                <p class=''> ${actor.name} </p>
-              </li>
+      </div>
+    </div>
+    <div id="Actors">
+      <h3 class='text-3xl font-bold'>Actors:</h3>
+      <ul id="actors" class="container flex flex-wrap space-x-12   gap-y-6 py-6">
+      ${slicedActs.map(actor => `
+        <li>
+          <img width='100' height='100' class='rounded-full' src=${BACKDROP_BASE_URL + actor.profile_path} alt='${actor.name}'>
+          <p class=''> ${actor.name} </p>
+        </li>
+      `).join('')}
+      </ul>
+      </div>
+      <div id="relatedMovies">
+        <h3 class='text-3xl font-bold'>Related movies</h3>
+        <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
+            ${slicedSimilar.map(similar => `
+            <li>
+            <img onclick="similarClick()" width='150' height='150' class='rounded-full' src=${BACKDROP_BASE_URL + similar.backdrop_path} alt='${similar.title}'>
+            <p class=''> ${similar.title} </p>
+          </li>
             `).join('')}
-            </ul>
-            <h3 class='text-3xl font-bold'>Related movies</h3>
-            <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
-                ${slicedSimilar.map(similar => `
-                <li>
-                <img onclick="similarClick()" width='150' height='150' class='rounded-full' src=${BACKDROP_BASE_URL + similar.backdrop_path} alt='${similar.title}'>
-                <p class=''> ${similar.title} </p>
-              </li>
-                `).join('')}
-            </ul>
-            <h3 class='text-3xl font-bold'>Production Companies</h3>
-            <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
-                ${`
-                <li>
-                <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
-              </li>
-                `}
-            </ul>
-    </div>`;
+        </ul>
+      </div>
+      <div id="relatedMovies">
+        <h3 class='text-3xl font-bold'>Production Companies</h3>
+        <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
+            ${`
+            <li>
+            <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
+          </li>
+            `}
+        </ul>
+      </div>
+  </div>
+
+`;
 };
 
 
@@ -136,6 +159,16 @@ const similarDetails = async (movie) => {
   return similarRes
 }
 
+const fetchTrailer = async (trailer) => {
+  const url = constructUrl(`movie/${trailer}/videos`);
+  const res = await fetch(url);
+  return res.json();
+}
+
+const trailerDetails = (movie) => {
+  const trailerRes = fetchTrailer(movie.id);
+  return trailerRes;
+}
 
 
 
