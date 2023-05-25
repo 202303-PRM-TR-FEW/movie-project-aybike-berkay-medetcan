@@ -485,6 +485,15 @@ const fetchActorPage = async () => {
 }
 
 
+// ABOUT PAGE
+// script.js
+document.getElementById("aboutButton").addEventListener("click", function(event) {
+  event.preventDefault(); // Prevent the default link behavior
+
+  var aboutButton = document.getElementById("aboutButton");
+  aboutButton.innerHTML = "<h2>About Us!</h2>";
+});
+
 
 
 
