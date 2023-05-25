@@ -63,9 +63,6 @@ const renderMovie = async (movie) => {
   const director = acts.crew.find(item => item.name)
   //trailer movie 
   const trailer = await trailerDetails(movie);
-  console.log(movie)
-  
-  console.log(trailer.results[0].key)
 
   CONTAINER.innerHTML = `
   <div class="container mx-auto">
@@ -87,9 +84,14 @@ const renderMovie = async (movie) => {
       <div class="right w-1/2">
         <h1 class='text-3xl font-bold'>Trailer</h1>
         <div>
-          <iframe width="420" height="315"
-          src="https://www.youtube.com/embed/${trailer.results[0].key}">
-          </iframe>
+        ${
+          trailer.results && trailer.results.length > 0 && trailer.results[0].key
+            ? `<div>
+                 <iframe width="100%" height="315" src="https://www.youtube.com/embed/${trailer.results[0].key}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                 <figcaption class="overlay"></figcaption>
+               </div>`
+            : `<p>No trailer available</p>`
+        }
         </div>
       </div>
     </div>
@@ -120,7 +122,7 @@ const renderMovie = async (movie) => {
         <ul id="actors" class="container flex flex-wrap space-x-12  gap-y-6 py-6">
             ${`
             <li>
-            <img onclick="similarClick()" width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
+            <img width='200' height='200'  src=${BACKDROP_BASE_URL + movie.production_companies[0].logo_path} alt='${movie.name}'>
           </li>
             `}
         </ul>
