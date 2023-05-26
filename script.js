@@ -440,17 +440,14 @@ const similarDetails = async (movie) => {
   return similarRes
 }
 
-
 // ACTORS PAGE
-const actorsPage = document.querySelectorAll('.actorsPage');
-actorsPage.forEach(actorsPage => actorsPage.addEventListener('click', async (e) => {
+const actorsPage = document.querySelector('.actorsPage');
+actorsPage.addEventListener('click', async (e) => {
   let actors = await fetchActorsPage();
-  console.log(actors)
   CONTAINER.innerHTML = `
   <div class='flex space-x-6 flex-wrap'>
   ${actors.results.map(actor => {
     return `
-    
     <div class='single-actor flex flex-col space-y-4'>
       <img class='rounded-full' width=100 height=100 src=${BACKDROP_BASE_URL + actor.profile_path} alt=${actor.name}>
       <p>${actor.name}</p>
@@ -465,7 +462,7 @@ actorsPage.forEach(actorsPage => actorsPage.addEventListener('click', async (e) 
     let actor = actors.results[index]
     await renderActor(actor)
   }))
-}))
+})
 
 const fetchActorsPage = async () => {
   const url = constructUrl(`person/popular`);
