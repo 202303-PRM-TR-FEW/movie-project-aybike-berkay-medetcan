@@ -441,10 +441,10 @@ const similarDetails = async (movie) => {
 }
 
 
-// ACTOR PAGE
-const actorPage = document.querySelectorAll('.actorsPage');
-actorPage.forEach(actorPage => actorPage.addEventListener('click', async (e) => {
-  let actors = await fetchActorPage();
+// ACTORS PAGE
+const actorsPage = document.querySelectorAll('.actorsPage');
+actorsPage.forEach(actorsPage => actorsPage.addEventListener('click', async (e) => {
+  let actors = await fetchActorsPage();
   console.log(actors)
   CONTAINER.innerHTML = `
   <div class='flex space-x-6 flex-wrap'>
@@ -460,25 +460,14 @@ actorPage.forEach(actorPage => actorPage.addEventListener('click', async (e) => 
   </div>
   `
 
-const singleActor = document.querySelectorAll('.single-actor');
-
-singleActor.forEach(element => element.addEventListener('click', async (e) => {
-  let array = actors.results
-  console.log(array)
-  for ( let x of array){
-    let x = actorDetails(x);
-    return x
-  }
-
-
-  CONTAINER.innerHTML = `
-  <div>
-  </div>
-  `
-}))
+  const singleActor = document.querySelectorAll('.single-actor');
+  singleActor.forEach((actorDiv, index) => actorDiv.addEventListener('click', async (e) => {
+    let actor = actors.results[index]
+    await renderActor(actor)
+  }))
 }))
 
-const fetchActorPage = async () => {
+const fetchActorsPage = async () => {
   const url = constructUrl(`person/popular`);
   const res = await fetch(url);
   return res.json();
